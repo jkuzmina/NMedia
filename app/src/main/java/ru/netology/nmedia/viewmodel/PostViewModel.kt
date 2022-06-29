@@ -71,10 +71,12 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun likeById(id: Long) {
+        val delete = _data.value?.posts.orEmpty()
+                    .find { it.id == id }?.likedByMe ?: false
         thread {
             try {
                 // Данные успешно получены
-                val postUpd = repository.likeById(id)
+                val postUpd = repository.likeById(id, delete)
                 val posts = _data.value!!.posts.map {
                     if (it.id != id) it else it.copy(
                         likes = postUpd.likes,
