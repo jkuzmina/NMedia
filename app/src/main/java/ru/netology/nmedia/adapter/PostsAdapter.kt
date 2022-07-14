@@ -60,7 +60,7 @@ class PostViewHolder(
                 .circleCrop()
                 .into(binding.avatar)
             if(post.attachment?.url != null) {
-                Glide.with(avatar)
+                Glide.with(imageAttachment)
                     .load("${BASE_URL}/images/${post.attachment?.url}")
                     .placeholder(R.drawable.ic_loading_100dp)
                     .error(R.drawable.ic_error_100dp)
