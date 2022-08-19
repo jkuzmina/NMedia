@@ -1,6 +1,8 @@
 package ru.netology.nmedia.repository
 
 import android.app.Application
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.map
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import okhttp3.*
@@ -10,18 +12,20 @@ import retrofit2.Call
 import retrofit2.Response
 import ru.netology.nmedia.R
 import ru.netology.nmedia.api.PostsApi
+import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.entity.PostEntity
+import ru.netology.nmedia.entity.toDto
+import ru.netology.nmedia.entity.toEntity
+import ru.netology.nmedia.error.ApiError
+import ru.netology.nmedia.error.NetworkError
+import ru.netology.nmedia.error.UnknownError
+import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 
-class PostRepositoryImpl(private val application: Application): PostRepository{
-
-    private val client = OkHttpClient.Builder()
-        .connectTimeout(30, TimeUnit.SECONDS)
-        .build()
-    private val gson = Gson()
-    private val typeToken = object : TypeToken<List<Post>>() {}
-    private val typePost = object : TypeToken<Post>() {}
+class PostRepositoryImpl(private val dao: PostDao, private val application: Application): PostRepository{
+    override val data: LiveData<List<Post>> = dao.getAll().map(List<PostEntity>::toDto)
     /*private val mApplication: Application
         get() {
             mApplication
@@ -30,9 +34,18 @@ class PostRepositoryImpl(private val application: Application): PostRepository{
     companion object {
         private const val BASE_URL = "http://10.0.2.2:9999"
         private val jsonType = "application/json".toMediaType()
-    }
 
-    override fun getAll(): List<Post> {
+    }
+    /*private var postRemoved = Post(
+        id = 0,
+        content = "",
+        author = "",
+        authorAvatar = "",
+        likedByMe = false,
+        likes = 0,
+        published = ""
+    )*/
+    /*override fun getAll(): List<Post> {
         val request: Request = Request.Builder()
             .url("${BASE_URL}/api/slow/posts")
             .build()
@@ -43,9 +56,87 @@ class PostRepositoryImpl(private val application: Application): PostRepository{
             .let {
                 gson.fromJson(it, typeToken.type)
             }
+    }*/
+    override suspend fun getAll() {
+        try {
+            val response = PostsApi.retrofitService.getAll()
+            if (!response.isSuccessful) {
+                throw ApiError(response.code(), response.message())
+            }
+
+            val body = response.body() ?: throw ApiError(response.code(), response.message())
+            dao.insert(body.toEntity())
+        } catch (e: IOException) {
+            throw NetworkError
+        } catch (e: Exception) {
+            throw UnknownError
+        }
     }
 
-    override fun likeById(post: Post): Post {
+    override suspend fun save(post: Post) {
+        try {
+            val response = PostsApi.retrofitService.save(post)
+            if (!response.isSuccessful) {
+                throw ApiError(response.code(), response.message())
+            }
+
+            val body = response.body() ?: throw ApiError(response.code(), response.message())
+            dao.insert(PostEntity.fromDto(body))
+        } catch (e: IOException) {
+            throw NetworkError
+        } catch (e: Exception) {
+            throw UnknownError
+        }
+    }
+
+    override suspend fun removeById(post: Post) {
+        val postRemoved = post.copy()
+        try {
+            dao.removeById(post.id)
+            val response = PostsApi.retrofitService.removeById(post.id)
+            if (!response.isSuccessful) {
+                throw ApiError(response.code(), response.message())
+            }
+        } catch (e: IOException) {
+            saveLocal(postRemoved)
+            throw NetworkError
+        } catch (e: Exception) {
+            saveLocal(postRemoved)
+            throw UnknownError
+        }
+    }
+
+    override suspend fun likeByIdLocal(id: Long) {
+        return dao.likeById(id)
+    }
+
+    override suspend fun saveLocal(post: Post) {
+        dao.insert(PostEntity.fromDto(post))
+    }
+
+    override suspend fun likeById(post: Post) : Post {
+        try {
+            likeByIdLocal(post.id)
+            val response = if (!post.likedByMe) {
+                PostsApi.retrofitService.likeById(post.id)
+            } else{
+                PostsApi.retrofitService.dislikeById(post.id)
+                }
+            if (!response.isSuccessful) {
+                throw ApiError(response.code(), response.message())
+            }
+            val body = response.body() ?: throw ApiError(response.code(), response.message())
+            return body
+        } catch (e: IOException) {
+            likeByIdLocal(post.id)
+            throw NetworkError
+        } catch (e: Exception) {
+            likeByIdLocal(post.id)
+            throw UnknownError
+        }
+    }
+
+    /*override fun likeById(post: Post): Post {
         val request =
             if (post.likedByMe) {
                 Request.Builder()
@@ -187,7 +278,7 @@ class PostRepositoryImpl(private val application: Application): PostRepository{
             }
 
         })
-    }
+    }*/
     fun <T : Any?> errorDescription(response: Response<T>):String = application.getString(R.string.error_text, response.code().toString(), response.message())
 
 }
