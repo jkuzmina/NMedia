@@ -63,6 +63,7 @@ dependencies {
     def retrofit_version = "2.9.0"
     def retrofitgson_version = "2.9.0"
     def okhttploggin_version = "4.9.3"
+    def coroutines_version = "1.6.0"
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
@@ -81,6 +82,7 @@ dependencies {
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
+    implementation "androidx.room:room-ktx:$room_version"
     implementation platform("com.google.firebase:firebase-bom:$firebase_version")
     implementation "com.google.firebase:firebase-messaging-ktx"
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
@@ -89,6 +91,7 @@ dependencies {
     implementation "com.google.android.gms:play-services-base:$play_services_base_version"
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("com.github.bumptech.glide:glide:$glide_version")
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
 
     testImplementation "junit:junit:$junit_version"
     androidTestImplementation "androidx.test.ext:junit:$ext_junit_version"
