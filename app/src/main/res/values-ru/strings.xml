@@ -22,4 +22,5 @@
     <string name="channel_remote_name">Уведомления с сервера</string>
     <string name="channel_remote_description">Уведомления с удалённого сервера</string>
     <string name="error_text">Код ошибки: %1$s, текст ошибки: %2$s</string>
+    <string name="new_posts">Новые записи</string>
 </resources>

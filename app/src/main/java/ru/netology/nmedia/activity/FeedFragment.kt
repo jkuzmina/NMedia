@@ -71,6 +71,18 @@ class FeedFragment : Fragment() {
             binding.emptyText.isVisible = state.empty
         })
 
+        viewModel.newerCount.observe(viewLifecycleOwner) { state ->
+            binding.newPosts.isVisible = state > 0
+            println(state)
+        }
+
+        binding.newPosts.setOnClickListener {
+            //viewModel.loadPosts()
+            viewModel.readNewPosts()
+            binding.newPosts.isVisible = false
+            binding.list.smoothScrollToPosition(0)
+        }
+
         binding.fab.setOnClickListener {
             findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
         }
