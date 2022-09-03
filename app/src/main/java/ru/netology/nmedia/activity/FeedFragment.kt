@@ -67,7 +67,12 @@ class FeedFragment : Fragment() {
         })
 
         viewModel.data.observe(viewLifecycleOwner, { state ->
-            adapter.submitList(state.posts)
+            val newPosts = adapter.currentList.size < state.posts.size
+            adapter.submitList(state.posts) {
+                if (newPosts) {
+                    binding.list.smoothScrollToPosition(0)
+                }
+            }
             binding.emptyText.isVisible = state.empty
         })
 
