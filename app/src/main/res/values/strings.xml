@@ -21,5 +21,6 @@
     <string name="channel_remote_name">Server notifications</string>
     <string name="channel_remote_description">Notifications from remote server</string>
     <string name="error_text">Error code: %1$s, error text: %2$s</string>
+    <string name="new_posts">New posts</string>
 
 </resources>

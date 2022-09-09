@@ -67,9 +67,26 @@ class FeedFragment : Fragment() {
         })
 
         viewModel.data.observe(viewLifecycleOwner, { state ->
-            adapter.submitList(state.posts)
+            val newPosts = adapter.currentList.size < state.posts.size
+            adapter.submitList(state.posts) {
+                if (newPosts) {
+                    binding.list.smoothScrollToPosition(0)
+                }
+            }
             binding.emptyText.isVisible = state.empty
         })
+
+        viewModel.newerCount.observe(viewLifecycleOwner) { state ->
+            binding.newPosts.isVisible = state > 0
+            println(state)
+        }
+
+        binding.newPosts.setOnClickListener {
+            //viewModel.loadPosts()
+            viewModel.readNewPosts()
+            binding.newPosts.isVisible = false
+            binding.list.smoothScrollToPosition(0)
+        }
 
         binding.fab.setOnClickListener {
             findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
