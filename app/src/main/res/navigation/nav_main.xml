@@ -17,10 +17,22 @@
             app:exitAnim="@android:anim/fade_out"
             app:popEnterAnim="@android:anim/fade_in"
             app:popExitAnim="@android:anim/fade_out" />
+        <action
+            android:id="@+id/action_feedFragment_to_showPhotoFragment"
+            app:destination="@id/showPhotoFragment" />
     </fragment>
     <fragment
         android:id="@+id/newPostFragment"
         android:name="ru.netology.nmedia.activity.NewPostFragment"
         android:label="fragment_new_post"
         tools:layout="@layout/fragment_new_post" />
+    <fragment
+        android:id="@+id/showPhotoFragment"
+        android:name="ru.netology.nmedia.activity.ShowPhotoFragment"
+        android:label="fragment_show_photo"
+        tools:layout="@layout/fragment_show_photo" >
+        <action
+            android:id="@+id/action_showPhotoFragment_to_feedFragment"
+            app:destination="@id/feedFragment" />
+    </fragment>
 </navigation>

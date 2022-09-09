@@ -45,6 +45,7 @@ android {
 
 dependencies {
     implementation 'com.google.android.gms:play-services-cast-framework:21.1.0'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     def core_version = '1.8.0'
     def appcompat_version = '1.4.2'
     def constraintlayout_version = '2.1.4'
