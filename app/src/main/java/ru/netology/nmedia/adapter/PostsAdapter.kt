@@ -1,6 +1,7 @@
 package ru.netology.nmedia.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
 import androidx.core.view.isVisible
@@ -73,6 +74,7 @@ class PostViewHolder(
                 Glide.with(imageAttachment).clear(binding.imageAttachment)
             }
 
+            menu.visibility = if (post.ownedByMe) View.VISIBLE else View.INVISIBLE
 
             menu.setOnClickListener {
                 PopupMenu(it.context, it).apply {

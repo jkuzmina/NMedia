@@ -8,12 +8,14 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.net.toFile
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.github.dhaval2404.imagepicker.constant.ImageProvider
 //import com.google.android.gms.cast.framework.media.ImagePicker
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.FragmentNewPostBinding
 import ru.netology.nmedia.util.AndroidUtils
 import ru.netology.nmedia.util.StringArg
@@ -129,6 +131,7 @@ class NewPostFragment : Fragment() {
             binding.photoContainer.visibility = View.VISIBLE
             binding.photo.setImageURI(it.uri)
         }
+
 
         return binding.root
     }

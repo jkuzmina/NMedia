@@ -27,4 +27,15 @@
     <string name="description_take_photo">Сделать фото</string>
     <string name="description_photo">Фото</string>
     <string name="remove">Удалить</string>
+    <string name="sign_in">Вход</string>
+    <string name="sign_up">Регистрация</string>
+    <string name="sign_out">Выход</string>
+    <string name="login">Логин</string>
+    <string name="password">Пароль</string>
+    <string name="sign_in_dialog">Войдите, чтобы продолжить</string>
+    <string name="dialog_cancel">Отмена</string>
+    <string name="authentication">Аутентификация</string>
+    <string name="name">Имя</string>
+    <string name="repeat_password">Повторите пароль</string>
+    <string name="dialog_signOut">Вы уверены, что хотите выйти?</string>
 </resources>
