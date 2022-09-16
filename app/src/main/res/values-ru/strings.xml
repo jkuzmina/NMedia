@@ -23,4 +23,8 @@
     <string name="channel_remote_description">Уведомления с удалённого сервера</string>
     <string name="error_text">Код ошибки: %1$s, текст ошибки: %2$s</string>
     <string name="new_posts">Новые записи</string>
+    <string name="description_select_photo">Выбрать фото</string>
+    <string name="description_take_photo">Сделать фото</string>
+    <string name="description_photo">Фото</string>
+    <string name="remove">Удалить</string>
 </resources>

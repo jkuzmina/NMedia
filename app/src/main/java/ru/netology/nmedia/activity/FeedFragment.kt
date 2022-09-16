@@ -5,11 +5,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.OnInteractionListener
@@ -29,7 +29,6 @@ class FeedFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val binding = FragmentFeedBinding.inflate(inflater, container, false)
-
         val adapter = PostsAdapter(object : OnInteractionListener {
             override fun onEdit(post: Post) {
                 viewModel.edit(post)
@@ -54,6 +53,14 @@ class FeedFragment : Fragment() {
                     Intent.createChooser(intent, getString(R.string.chooser_share_post))
                 startActivity(shareIntent)
             }
+
+            override fun onPhotoClick(post: Post) {
+                val bundle = Bundle()
+                bundle.putLong("postId", post.id)
+                bundle.putString("uri", post.attachment?.url)
+                val navController = findNavController()
+                navController.navigate(R.id.action_feedFragment_to_showPhotoFragment, bundle)
+            }
         })
         binding.list.adapter = adapter
         viewModel.dataState.observe(viewLifecycleOwner, { state ->
@@ -67,12 +74,7 @@ class FeedFragment : Fragment() {
         })
 
         viewModel.data.observe(viewLifecycleOwner, { state ->
-            val newPosts = adapter.currentList.size < state.posts.size
-            adapter.submitList(state.posts) {
-                if (newPosts) {
-                    binding.list.smoothScrollToPosition(0)
-                }
-            }
+            adapter.submitList(state.posts)
             binding.emptyText.isVisible = state.empty
         })
 
@@ -82,7 +84,6 @@ class FeedFragment : Fragment() {
         }
 
         binding.newPosts.setOnClickListener {
-            //viewModel.loadPosts()
             viewModel.readNewPosts()
             binding.newPosts.isVisible = false
             binding.list.smoothScrollToPosition(0)
