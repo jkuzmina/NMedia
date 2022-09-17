@@ -38,4 +38,6 @@
     <string name="name">Имя</string>
     <string name="repeat_password">Повторите пароль</string>
     <string name="dialog_signOut">Вы уверены, что хотите выйти?</string>
+    <string name="auth_error">Ошибка при аутентификации</string>
+    <string name="reg_error">Ошибка при регистрации</string>
 </resources>

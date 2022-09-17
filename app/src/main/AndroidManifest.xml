@@ -15,6 +15,7 @@ package="ru.netology.nmedia">
     android:usesCleartextTraffic="${usesCleartextTraffic}">
     <activity
         android:name=".activity.AppActivity"
+        android:windowSoftInputMode="adjustResize"
         android:exported="true">
         <nav-graph android:value="@navigation/nav_main" />
 

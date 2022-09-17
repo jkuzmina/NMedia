@@ -34,13 +34,7 @@ class SignUpFragment : Fragment() {
                 viewModel.name.value = binding.name.text.toString()
                 viewModel.login.value = binding.login.text.toString()
                 viewModel.pass.value = binding.pass.text.toString()
-                try{
-                    viewModel.signUp()
-                }
-                catch (e: Exception){
-                    Snackbar.make(binding.root, R.string.error_loading, Snackbar.LENGTH_LONG)
-                        .show()
-                }
+                viewModel.signUp()
             }
 
         }
@@ -48,6 +42,13 @@ class SignUpFragment : Fragment() {
         viewModel.authState.observe(viewLifecycleOwner, { state ->
             AppAuth.getInstance().setAuth(state.id, state.token!!)
             findNavController().navigateUp()
+        })
+
+        viewModel.userAuthResult.observe(viewLifecycleOwner, { state ->
+            if(state.error){
+                Snackbar.make(binding.root, getString(R.string.reg_error), Snackbar.LENGTH_LONG)
+                    .show()
+            }
         })
         return binding.root
     }

@@ -10,6 +10,9 @@ import ru.netology.nmedia.auth.AuthState
 import ru.netology.nmedia.error.ApiError
 import ru.netology.nmedia.error.NetworkError
 import ru.netology.nmedia.error.UnknownError
+import ru.netology.nmedia.model.FeedModelState
+import ru.netology.nmedia.model.UserAuthResult
+import ru.netology.nmedia.util.SingleLiveEvent
 import java.io.IOException
 
 class SignInViewModel : ViewModel() {
@@ -20,15 +23,19 @@ class SignInViewModel : ViewModel() {
     private val _authState = MutableLiveData<AuthState>()
     val authState: LiveData<AuthState>
         get() = _authState
+    private val _userAuthResult = SingleLiveEvent<UserAuthResult>()
+    val userAuthResult: LiveData<UserAuthResult>
+        get() = _userAuthResult
 
     fun signIn() = viewModelScope.launch{
         try {
             val authResult = updateUser(login.value!!.toString().trim(), pass.value!!.toString().trim())
             if(authResult != null){
                 _authState.value = authResult
+                _userAuthResult.value = UserAuthResult()
             }
         } catch (e: Exception) {
-            throw e
+            _userAuthResult.value = UserAuthResult(error = true)
         }
     }
 

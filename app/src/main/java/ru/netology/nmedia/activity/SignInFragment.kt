@@ -29,18 +29,19 @@ class SignInFragment : Fragment() {
             AndroidUtils.hideKeyboard(requireView())
             viewModel.login.value = binding.login.text.toString()
             viewModel.pass.value = binding.pass.text.toString()
-            try{
-                viewModel.signIn()
-            }
-            catch (e: Exception){
-                Snackbar.make(binding.root, R.string.error_loading, Snackbar.LENGTH_LONG)
-                    .show()
-            }
+            viewModel.signIn()
         }
 
         viewModel.authState.observe(viewLifecycleOwner, { state ->
             AppAuth.getInstance().setAuth(state.id, state.token!!)
             findNavController().navigateUp()
+        })
+
+        viewModel.userAuthResult.observe(viewLifecycleOwner, { state ->
+            if(state.error){
+                Snackbar.make(binding.root, getString(R.string.auth_error), Snackbar.LENGTH_LONG)
+                    .show()
+            }
         })
         return binding.root
     }

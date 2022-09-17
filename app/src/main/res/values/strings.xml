@@ -37,4 +37,6 @@
     <string name="name">Name</string>
     <string name="repeat_password">Repeat password</string>
     <string name="dialog_signOut">Are you sure?</string>
+    <string name="auth_error">Authentication error</string>
+    <string name="reg_error">Registration error</string>
 </resources>
