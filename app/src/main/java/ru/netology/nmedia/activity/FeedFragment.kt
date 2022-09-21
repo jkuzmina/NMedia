@@ -14,8 +14,10 @@ import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostsAdapter
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.util.SignInDialogFragment
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 
@@ -35,7 +37,11 @@ class FeedFragment : Fragment() {
             }
 
             override fun onLike(post: Post) {
-                viewModel.likeById(post)
+                if(!AppAuth.getInstance().authenticated()){
+                    showSignInDialog()
+                }else {
+                    viewModel.likeById(post)
+                }
             }
 
             override fun onRemove(post: Post) {
@@ -90,7 +96,11 @@ class FeedFragment : Fragment() {
         }
 
         binding.fab.setOnClickListener {
-            findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
+            if(!AppAuth.getInstance().authenticated()){
+                showSignInDialog()
+            }else{
+                findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
+            }
         }
 
         binding.swiperefresh.setOnRefreshListener {
@@ -98,5 +108,14 @@ class FeedFragment : Fragment() {
             binding.swiperefresh.isRefreshing = false
         }
         return binding.root
+    }
+
+    fun showSignInDialog(){
+        val dialog = SignInDialogFragment()
+        dialog.show(getParentFragmentManager(), getString(R.string.authentication))
+    }
+    fun showSignOutDialog(){
+        val dialog = SignInDialogFragment()
+        dialog.show(getParentFragmentManager(), getString(R.string.sign_out))
     }
 }
