@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import ru.netology.nmedia.api.PostsApi
+import ru.netology.nmedia.api.Api
 import ru.netology.nmedia.auth.AuthState
 import ru.netology.nmedia.error.ApiError
 import ru.netology.nmedia.error.NetworkError
@@ -43,7 +43,7 @@ class SignUpViewModel: ViewModel() {
     suspend fun registerUser(name:String, login: String, pass: String): AuthState {
         try {
 
-            val response = PostsApi.retrofitService.registerUser(login, pass, name)
+            val response = Api.retrofitService.registerUser(login, pass, name)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }

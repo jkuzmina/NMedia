@@ -15,7 +15,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Call
 import retrofit2.Response
 import ru.netology.nmedia.R
-import ru.netology.nmedia.api.PostsApi
+import ru.netology.nmedia.api.Api
 import ru.netology.nmedia.auth.AuthState
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dto.Attachment
@@ -50,7 +50,7 @@ class PostRepositoryImpl(private val dao: PostDao, private val application: Appl
 
     override suspend fun getAll() {
         try {
-            val response = PostsApi.retrofitService.getAll()
+            val response = Api.retrofitService.getAll()
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -67,7 +67,7 @@ class PostRepositoryImpl(private val dao: PostDao, private val application: Appl
     override fun getNewerCount(id: Long): Flow<Int> = flow {
         while (true) {
             delay(10_000L)
-            val response = PostsApi.retrofitService.getNewer(id)
+            val response = Api.retrofitService.getNewer(id)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -87,7 +87,7 @@ class PostRepositoryImpl(private val dao: PostDao, private val application: Appl
 
     override suspend fun save(post: Post) {
         try {
-            val response = PostsApi.retrofitService.save(post)
+            val response = Api.retrofitService.save(post)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -105,7 +105,7 @@ class PostRepositoryImpl(private val dao: PostDao, private val application: Appl
         val postRemoved = post.copy()
         try {
             dao.removeById(post.id)
-            val response = PostsApi.retrofitService.removeById(post.id)
+            val response = Api.retrofitService.removeById(post.id)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -130,9 +130,9 @@ class PostRepositoryImpl(private val dao: PostDao, private val application: Appl
         try {
             likeByIdLocal(post.id)
             val response = if (!post.likedByMe) {
-                PostsApi.retrofitService.likeById(post.id)
+                Api.retrofitService.likeById(post.id)
             } else{
-                PostsApi.retrofitService.dislikeById(post.id)
+                Api.retrofitService.dislikeById(post.id)
                 }
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
@@ -172,7 +172,7 @@ class PostRepositoryImpl(private val dao: PostDao, private val application: Appl
                 "file", upload.file.name, upload.file.asRequestBody()
             )
 
-            val response = PostsApi.retrofitService.upload(media)
+            val response = Api.retrofitService.upload(media)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -188,7 +188,7 @@ class PostRepositoryImpl(private val dao: PostDao, private val application: Appl
     override suspend fun updateUser(login: String, pass: String): AuthState {
         try {
 
-            val response = PostsApi.retrofitService.updateUser(login, pass)
+            val response = Api.retrofitService.updateUser(login, pass)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
