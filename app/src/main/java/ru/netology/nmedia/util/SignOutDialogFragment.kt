@@ -8,8 +8,11 @@ import androidx.fragment.app.DialogFragment
 import androidx.navigation.fragment.findNavController
 import ru.netology.nmedia.R
 import ru.netology.nmedia.auth.AppAuth
+import javax.inject.Inject
 
 class SignOutDialogFragment : DialogFragment() {
+    @Inject
+    lateinit var auth: AppAuth
     @Override
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
@@ -19,7 +22,7 @@ class SignOutDialogFragment : DialogFragment() {
                 .setPositiveButton(
                     R.string.sign_out,
                     DialogInterface.OnClickListener { dialog, id ->
-                        AppAuth.getInstance().removeAuth()
+                        auth.removeAuth()
                         findNavController().navigateUp()
                     })
                 .setNegativeButton(getString(R.string.dialog_cancel),
