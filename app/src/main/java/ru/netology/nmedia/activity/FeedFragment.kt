@@ -23,7 +23,7 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class FeedFragment : Fragment() {
-    private val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
+    private val viewModel: PostViewModel by viewModels()
     @Inject
     lateinit var auth: AppAuth
 
@@ -115,9 +115,5 @@ class FeedFragment : Fragment() {
     fun showSignInDialog(){
         val dialog = SignInDialogFragment()
         dialog.show(getParentFragmentManager(), getString(R.string.authentication))
-    }
-    fun showSignOutDialog(){
-        val dialog = SignInDialogFragment()
-        dialog.show(getParentFragmentManager(), getString(R.string.sign_out))
     }
 }

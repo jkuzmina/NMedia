@@ -26,9 +26,7 @@ class NewPostFragment : Fragment() {
         var Bundle.textArg: String? by StringArg
     }
 
-    private val viewModel: PostViewModel by viewModels(
-        ownerProducer = ::requireParentFragment
-    )
+    private val viewModel: PostViewModel by viewModels()
 
     private var fragmentBinding: FragmentNewPostBinding? = null
 
@@ -117,7 +115,6 @@ class NewPostFragment : Fragment() {
         }
 
         viewModel.postCreated.observe(viewLifecycleOwner) {
-            //viewModel.loadPosts()
             findNavController().navigateUp()
         }
 

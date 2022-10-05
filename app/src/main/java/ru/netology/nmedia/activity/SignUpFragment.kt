@@ -20,12 +20,12 @@ import javax.inject.Inject
 class SignUpFragment : Fragment() {
     @Inject
     lateinit var auth: AppAuth
-    private val viewModel: SignUpViewModel by viewModels(ownerProducer = ::requireParentFragment)
+    private val viewModel: SignUpViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         val binding = FragmentSignUpBinding.inflate(inflater, container, false)
 
         binding.signUp.setOnClickListener {

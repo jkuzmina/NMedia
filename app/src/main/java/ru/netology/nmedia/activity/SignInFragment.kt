@@ -20,12 +20,12 @@ import javax.inject.Inject
 class SignInFragment : Fragment() {
     @Inject
     lateinit var auth: AppAuth
-    private val viewModel: SignInViewModel by viewModels(ownerProducer = ::requireParentFragment)
+    private val viewModel: SignInViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         val binding = FragmentSignInBinding.inflate(inflater, container, false)
 
         binding.signIn.setOnClickListener{

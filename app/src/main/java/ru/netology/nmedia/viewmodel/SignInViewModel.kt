@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.auth.AuthState
@@ -17,7 +16,6 @@ import ru.netology.nmedia.util.SingleLiveEvent
 import java.io.IOException
 import javax.inject.Inject
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class SignInViewModel @Inject constructor(
     private val apiService: ApiService,
@@ -36,10 +34,8 @@ class SignInViewModel @Inject constructor(
     fun signIn() = viewModelScope.launch{
         try {
             val authResult = updateUser(login.value!!.toString().trim(), pass.value!!.toString().trim())
-            if(authResult != null){
-                _authState.value = authResult
-                _userAuthResult.value = UserAuthResult()
-            }
+            _authState.value = authResult
+            _userAuthResult.value = UserAuthResult()
         } catch (e: Exception) {
             _userAuthResult.value = UserAuthResult(error = true)
         }
