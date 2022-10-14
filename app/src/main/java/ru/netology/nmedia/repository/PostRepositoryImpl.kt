@@ -1,9 +1,5 @@
 package ru.netology.nmedia.repository
-
-import android.util.Log
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.PagingData
+import androidx.paging.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -12,6 +8,8 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.auth.AuthState
 import ru.netology.nmedia.dao.PostDao
+import ru.netology.nmedia.dao.PostRemoteKeyDao
+import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Attachment
 import ru.netology.nmedia.dto.Media
 import ru.netology.nmedia.dto.MediaUpload
@@ -30,28 +28,31 @@ import javax.inject.Singleton
 
 @Singleton
 class PostRepositoryImpl @Inject constructor(
+    appDb: AppDb,
     private val postDao: PostDao,
+    postRemoteKeyDao: PostRemoteKeyDao,
     private val apiService: ApiService,
 ) : PostRepository {
-   /* override val data = postDao.getAll()
-        .map(List<PostEntity>::toDto)
-        .flowOn(Dispatchers.Default)*/
 
+    @OptIn(ExperimentalPagingApi::class)
     override val data: Flow<PagingData<Post>> = Pager(
-        config = PagingConfig(pageSize = 5, enablePlaceholders = false),
-        pagingSourceFactory = { PostPagingSource(apiService) },
-    ).flow
+        config = PagingConfig(pageSize = 5),
+        remoteMediator = PostRemoteMediator(apiService, appDb, postDao, postRemoteKeyDao),
+        pagingSourceFactory = postDao::pagingSource,
+    ).flow.map { pagingData ->
+        pagingData.map(PostEntity::toDto)
+    }
 
     override suspend fun getAll() {
         try {
             val response = apiService.getAll()
-            Log.d("AAAAA", "in")
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
 
             val body = response.body() ?: throw ApiError(response.code(), response.message())
             postDao.insert(body.toEntity())
+            postDao.getAll()
         } catch (e: IOException) {
             throw NetworkError
         } catch (e: Exception) {
