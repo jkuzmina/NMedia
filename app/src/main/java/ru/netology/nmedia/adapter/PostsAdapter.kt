@@ -1,5 +1,6 @@
 package ru.netology.nmedia.adapter
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,10 +10,15 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import dagger.hilt.android.qualifiers.ApplicationContext
 import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
+import ru.netology.nmedia.databinding.CardTimeSeparatorBinding
+import ru.netology.nmedia.dto.FeedItem
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.dto.TimeSeparator
+import ru.netology.nmedia.enumeration.TimeSeparatorValue
 
 interface OnInteractionListener {
     fun onLike(post: Post) {}
@@ -22,17 +28,45 @@ interface OnInteractionListener {
     fun onPhotoClick(post: Post) {}
 }
 
-class PostsAdapter(
+class FeedAdapter(
     private val onInteractionListener: OnInteractionListener,
-) : PagingDataAdapter<Post, PostViewHolder>(PostDiffCallback()) {
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
-        val binding = CardPostBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return PostViewHolder(binding, onInteractionListener)
+    @ApplicationContext private val context: Context,
+) : PagingDataAdapter<FeedItem, RecyclerView.ViewHolder>(FeedItemDiffCallback()) {
+    private val typeTimeSeparator = 0
+    private val typePost = 1
+
+    override fun getItemViewType(position: Int): Int {
+        return when (getItem(position)) {
+            is TimeSeparator -> typeTimeSeparator
+            is Post -> typePost
+            null -> throw IllegalArgumentException("unknown item type")
+        }
     }
 
-    override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val layoutInflater = LayoutInflater.from(parent.context)
+        return when (viewType) {
+            typeTimeSeparator -> TimeSeparatorViewHolder(
+                CardTimeSeparatorBinding.inflate(layoutInflater, parent, false),
+                onInteractionListener,
+                context
+            )
+            typePost -> PostViewHolder(
+                CardPostBinding.inflate(layoutInflater, parent, false),
+                onInteractionListener
+            )
+            else -> throw IllegalArgumentException("unknown view type: $viewType")
+        }
+    }
+
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        // FIXME: students will do in HW
         getItem(position)?.let {
-            holder.bind(it)
+            when (it) {
+                is Post -> (holder as? PostViewHolder)?.bind(it)
+                is TimeSeparator -> (holder as? TimeSeparatorViewHolder)?.bind(it)
+            }
         }
     }
 }
@@ -109,12 +143,33 @@ class PostViewHolder(
     }
 }
 
-class PostDiffCallback : DiffUtil.ItemCallback<Post>() {
-    override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean {
+class TimeSeparatorViewHolder(
+    private val binding: CardTimeSeparatorBinding,
+    private val onInteractionListener: OnInteractionListener,
+    @ApplicationContext private val context: Context,
+) : RecyclerView.ViewHolder(binding.root) {
+
+    fun bind(timeSeparator: TimeSeparator) {
+        binding.apply {
+            when (timeSeparator.value){
+                TimeSeparatorValue.TODAY -> timeText.text = context.getString(R.string.today)
+                TimeSeparatorValue.YESTERDAY -> timeText.text = context.getString(R.string.yesterday)
+                TimeSeparatorValue.LAST_WEEK -> timeText.text = context.getString(R.string.last_week)
+            }
+        }
+    }
+}
+
+class FeedItemDiffCallback : DiffUtil.ItemCallback<FeedItem>() {
+    override fun areItemsTheSame(oldItem: FeedItem, newItem: FeedItem): Boolean {
+        if (oldItem::class != newItem::class) {
+            return false
+        }
+
         return oldItem.id == newItem.id
     }
 
-    override fun areContentsTheSame(oldItem: Post, newItem: Post): Boolean {
+    override fun areContentsTheSame(oldItem: FeedItem, newItem: FeedItem): Boolean {
         return oldItem == newItem
     }
 }
