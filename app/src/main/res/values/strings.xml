@@ -39,4 +39,7 @@
     <string name="dialog_signOut">Are you sure?</string>
     <string name="auth_error">Authentication error</string>
     <string name="reg_error">Registration error</string>
+    <string name="today">Today</string>
+    <string name="yesterday">Yesterday</string>
+    <string name="last_week">Last week</string>
 </resources>

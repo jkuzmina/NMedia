@@ -1,22 +1,28 @@
 package ru.netology.nmedia.viewmodel
 
 import android.net.Uri
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.*
-import androidx.paging.PagingData
-import androidx.paging.cachedIn
-import androidx.paging.map
+import androidx.paging.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import ru.netology.nmedia.auth.AppAuth
+import ru.netology.nmedia.dto.FeedItem
 import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.dto.TimeSeparator
+import ru.netology.nmedia.enumeration.TimeSeparatorValue
 import ru.netology.nmedia.model.FeedModelState
 import ru.netology.nmedia.model.PhotoModel
 import ru.netology.nmedia.repository.*
 import ru.netology.nmedia.util.SingleLiveEvent
 import java.io.File
+import java.time.OffsetDateTime
 import javax.inject.Inject
+import kotlin.random.Random
 
 private val empty = Post(
     id = 0,
@@ -29,6 +35,7 @@ private val empty = Post(
     published = ""
 )
 private val noPhoto = PhotoModel()
+
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class PostViewModel @Inject constructor(
@@ -36,22 +43,42 @@ class PostViewModel @Inject constructor(
     auth: AppAuth,
 ) : ViewModel() {
 
-    private val cached = repository
+    @RequiresApi(Build.VERSION_CODES.O)
+    private val cached: Flow<PagingData<FeedItem>> = repository
         .data
+        .map { pagingData ->
+            pagingData.insertSeparators(
+                generator = { before, after ->
+                    if (after == null) {
+                        // we're at the end of the list
+                        null
+                    } else if (before == null) {
+                        // we're at the beginning of the list
+                        TimeSeparator(Random.nextLong(), getTimeSeparatorValue(after))
+                    } else {
+                        if (getTimeSeparatorValue(before) != getTimeSeparatorValue(after)) {
+                            TimeSeparator(Random.nextLong(), getTimeSeparatorValue(after))
+                        } else {
+                            // no separator
+                            null
+                        }
+                    }
+                }
+            )
+        }
         .cachedIn(viewModelScope)
 
-    val data: Flow<PagingData<Post>> = auth.authStateFlow
+    @RequiresApi(Build.VERSION_CODES.O)
+    val data: Flow<PagingData<FeedItem>> = auth.authStateFlow
         .flatMapLatest { (myId, _) ->
-            repository.data
-                .map { posts ->
-                    posts.map { it.copy(ownedByMe = it.authorId == myId) }
+            cached
+                .map { pagingData ->
+                    pagingData.map { item ->
+                        if (item !is Post) item else item.copy(ownedByMe = item.authorId == myId)
+                    }
                 }
-            /*cached.map { pagingData ->
-                pagingData.map { post ->
-                    post.copy(ownedByMe = post.authorId == myId)
-                }
-            }*/
         }
+
 
     private val _dataState = MutableLiveData<FeedModelState>()
     val dataState: LiveData<FeedModelState>
@@ -70,7 +97,19 @@ class PostViewModel @Inject constructor(
         loadPosts()
     }
 
-    fun loadPosts()  = viewModelScope.launch {
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getTimeSeparatorValue(post: Post): TimeSeparatorValue {
+        val timeNow = OffsetDateTime.now().toEpochSecond()
+        val postTime = post.published.toLong()
+        val result = when {
+            postTime > (timeNow - 24 * 60 * 60) -> TimeSeparatorValue.TODAY
+            postTime <= (timeNow - 24 * 60 * 60) && postTime >= (timeNow - 48 * 60 * 60) -> TimeSeparatorValue.YESTERDAY
+            else -> TimeSeparatorValue.LAST_WEEK
+        }
+        return result
+    }
+
+    fun loadPosts() = viewModelScope.launch {
         try {
             _dataState.value = FeedModelState(loading = true)
             //repository.getAll()
@@ -95,7 +134,7 @@ class PostViewModel @Inject constructor(
             _postCreated.value = Unit
             viewModelScope.launch {
                 try {
-                    when(_photo.value) {
+                    when (_photo.value) {
                         noPhoto -> repository.save(it)
                         else -> _photo.value?.file?.let { file ->
                             repository.saveWithAttachment(it, MediaUpload(file))
@@ -127,7 +166,7 @@ class PostViewModel @Inject constructor(
         _photo.value = PhotoModel(uri, file)
     }
 
-    fun likeById(post: Post)  = viewModelScope.launch {
+    fun likeById(post: Post) = viewModelScope.launch {
         try {
             _dataState.value = FeedModelState(loading = true)
             repository.likeById(post)
@@ -138,7 +177,7 @@ class PostViewModel @Inject constructor(
         }
     }
 
-    fun removeById(post: Post)  = viewModelScope.launch {
+    fun removeById(post: Post) = viewModelScope.launch {
         try {
             _dataState.value = FeedModelState(loading = true)
             repository.removeById(post)
@@ -148,7 +187,7 @@ class PostViewModel @Inject constructor(
         }
     }
 
-    fun readNewPosts()  = viewModelScope.launch {
+    fun readNewPosts() = viewModelScope.launch {
         repository.readNewPosts()
     }
 
