@@ -35,6 +35,7 @@ private val empty = Post(
     published = ""
 )
 private val noPhoto = PhotoModel()
+
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class PostViewModel @Inject constructor(
@@ -52,9 +53,9 @@ class PostViewModel @Inject constructor(
                         // we're at the end of the list
                         null
                     } else if (before == null) {
-                            // we're at the beginning of the list
-                            TimeSeparator(Random.nextLong(), getTimeSeparatorValue(after))
-                        } else {
+                        // we're at the beginning of the list
+                        TimeSeparator(Random.nextLong(), getTimeSeparatorValue(after))
+                    } else {
                         if (getTimeSeparatorValue(before) != getTimeSeparatorValue(after)) {
                             TimeSeparator(Random.nextLong(), getTimeSeparatorValue(after))
                         } else {
@@ -97,17 +98,18 @@ class PostViewModel @Inject constructor(
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun getTimeSeparatorValue(post: Post): TimeSeparatorValue{
+    fun getTimeSeparatorValue(post: Post): TimeSeparatorValue {
         val timeNow = OffsetDateTime.now().toEpochSecond()
         val postTime = post.published.toLong()
-        val result = when{
-            postTime > (timeNow - 24*60*60) -> TimeSeparatorValue.TODAY
-            postTime <= (timeNow - 24*60*60) && postTime >= (timeNow - 48*60*60) -> TimeSeparatorValue.YESTERDAY
+        val result = when {
+            postTime > (timeNow - 24 * 60 * 60) -> TimeSeparatorValue.TODAY
+            postTime <= (timeNow - 24 * 60 * 60) && postTime >= (timeNow - 48 * 60 * 60) -> TimeSeparatorValue.YESTERDAY
             else -> TimeSeparatorValue.LAST_WEEK
         }
         return result
     }
-    fun loadPosts()  = viewModelScope.launch {
+
+    fun loadPosts() = viewModelScope.launch {
         try {
             _dataState.value = FeedModelState(loading = true)
             //repository.getAll()
@@ -132,7 +134,7 @@ class PostViewModel @Inject constructor(
             _postCreated.value = Unit
             viewModelScope.launch {
                 try {
-                    when(_photo.value) {
+                    when (_photo.value) {
                         noPhoto -> repository.save(it)
                         else -> _photo.value?.file?.let { file ->
                             repository.saveWithAttachment(it, MediaUpload(file))
@@ -164,7 +166,7 @@ class PostViewModel @Inject constructor(
         _photo.value = PhotoModel(uri, file)
     }
 
-    fun likeById(post: Post)  = viewModelScope.launch {
+    fun likeById(post: Post) = viewModelScope.launch {
         try {
             _dataState.value = FeedModelState(loading = true)
             repository.likeById(post)
@@ -175,7 +177,7 @@ class PostViewModel @Inject constructor(
         }
     }
 
-    fun removeById(post: Post)  = viewModelScope.launch {
+    fun removeById(post: Post) = viewModelScope.launch {
         try {
             _dataState.value = FeedModelState(loading = true)
             repository.removeById(post)
@@ -185,7 +187,7 @@ class PostViewModel @Inject constructor(
         }
     }
 
-    fun readNewPosts()  = viewModelScope.launch {
+    fun readNewPosts() = viewModelScope.launch {
         repository.readNewPosts()
     }
 
