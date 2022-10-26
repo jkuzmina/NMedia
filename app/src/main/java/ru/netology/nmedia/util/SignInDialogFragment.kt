@@ -2,7 +2,6 @@ package ru.netology.nmedia.util
 
 import android.app.AlertDialog
 import android.app.Dialog
-import android.content.DialogInterface
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment
 import androidx.navigation.fragment.findNavController
@@ -16,11 +15,11 @@ class SignInDialogFragment : DialogFragment() {
             val builder = AlertDialog.Builder(it)
             builder.setMessage(getString(R.string.sign_in_dialog))
                 .setPositiveButton(R.string.sign_in,
-                    DialogInterface.OnClickListener { dialog, id ->
+                    { dialog, id ->
                         findNavController().navigate(R.id.action_feedFragment_to_signInFragment)
                     })
                 .setNegativeButton(getString(R.string.dialog_cancel),
-                    DialogInterface.OnClickListener { dialog, id ->
+                    { dialog, id ->
                         // User cancelled the dialog
                     })
             // Create the AlertDialog object and return it
