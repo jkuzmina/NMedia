@@ -1,5 +1,9 @@
 package ru.netology.nmedia.repository
 
+import android.util.Log
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -13,7 +17,6 @@ import ru.netology.nmedia.dto.Media
 import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
-import ru.netology.nmedia.entity.toDto
 import ru.netology.nmedia.entity.toEntity
 import ru.netology.nmedia.entity.toEntityNew
 import ru.netology.nmedia.enumeration.AttachmentType
@@ -30,20 +33,19 @@ class PostRepositoryImpl @Inject constructor(
     private val postDao: PostDao,
     private val apiService: ApiService,
 ) : PostRepository {
-    override val data = postDao.getAll()
+   /* override val data = postDao.getAll()
         .map(List<PostEntity>::toDto)
-        .flowOn(Dispatchers.Default)
+        .flowOn(Dispatchers.Default)*/
 
-
-    /*companion object {
-        private const val BASE_URL = "http://10.0.2.2:9999"
-        private val jsonType = "application/json".toMediaType()
-
-    }*/
+    override val data: Flow<PagingData<Post>> = Pager(
+        config = PagingConfig(pageSize = 5, enablePlaceholders = false),
+        pagingSourceFactory = { PostPagingSource(apiService) },
+    ).flow
 
     override suspend fun getAll() {
         try {
             val response = apiService.getAll()
+            Log.d("AAAAA", "in")
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }

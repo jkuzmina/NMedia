@@ -5,17 +5,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
 import androidx.core.view.isVisible
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.bitmap.CircleCrop
-import okhttp3.MediaType.Companion.toMediaType
 import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.repository.PostRepositoryImpl
 
 interface OnInteractionListener {
     fun onLike(post: Post) {}
@@ -27,15 +24,16 @@ interface OnInteractionListener {
 
 class PostsAdapter(
     private val onInteractionListener: OnInteractionListener,
-) : ListAdapter<Post, PostViewHolder>(PostDiffCallback()) {
+) : PagingDataAdapter<Post, PostViewHolder>(PostDiffCallback()) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
         val binding = CardPostBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return PostViewHolder(binding, onInteractionListener)
     }
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
-        val post = getItem(position)
-        holder.bind(post)
+        getItem(position)?.let {
+            holder.bind(it)
+        }
     }
 }
 
@@ -63,7 +61,7 @@ class PostViewHolder(
             if(post.attachment?.url != null) {
                 imageAttachment.isVisible = true
                 Glide.with(imageAttachment)
-                    .load("${BuildConfig.BASE_URL}/media/${post.attachment?.url}")
+                    .load("${BuildConfig.BASE_URL}/media/${post.attachment.url}")
                     .placeholder(R.drawable.ic_loading_100dp)
                     .error(R.drawable.ic_error_100dp)
                     .timeout(10_000)

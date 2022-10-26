@@ -54,6 +54,7 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
         }
         viewModel.data.observe(this) {
             invalidateOptionsMenu()
+
         }
         checkGoogleApiAvailability()
     }
